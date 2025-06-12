@@ -134,6 +134,10 @@ std::string GetMaterialName(const aiMaterial &mat, unsigned int index) {
 void CollectTrafos(const aiNode *node, std::map<const aiNode *, aiMatrix4x4> &trafos) {
     const aiMatrix4x4 &parent = node->mParent ? trafos[node->mParent] : aiMatrix4x4();
     trafos[node] = parent * node->mTransformation;
+    // We must inverse the transform because the see the line 1982 import_3ds.py in https://extensions.blender.org/add-ons/autodesk-3ds-format/
+    // see the https://code.google.com/archive/p/lib3ds/source
+    // see render_node method in 3dsplay.cpp in https://code.google.com/archive/p/lib3ds/source 
+    trafos[node].Inverse();
     for (unsigned int i = 0; i < node->mNumChildren; ++i) {
         CollectTrafos(node->mChildren[i], trafos);
     }
